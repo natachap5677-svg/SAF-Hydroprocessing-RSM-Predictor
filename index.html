@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAF Hydroprocessing RSM Predictor</title>
+    
+    <!-- Loading Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Loading FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Loading Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('Black ground.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus { outline: none; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #e5e7eb; /* Default track color */
+            border-radius: 3px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 3px solid #10b981; /* Teal/Green Accent */
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navbar -->
+    <nav class="w-full bg-[#0f172a] text-white shadow-md z-20 sticky top-0">
+        <div class="max-w-[1400px] mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
+            <!-- Left: Logo & Title -->
+            <div class="flex items-center gap-3">
+                <img src="Logo.jpg" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
+                <span class="font-bold text-lg hidden sm:block tracking-wide">SAF Hydroprocessing RSM Predictor</span>
+            </div>
+            <!-- Right: Links -->
+            <div class="flex gap-4 md:gap-8 text-sm font-medium">
+                <a href="#" class="hover:text-green-400 transition flex items-center">Home</a>
+                <a href="#" class="bg-teal-600/30 text-teal-400 px-4 py-1.5 rounded-full border border-teal-500/50 flex items-center">Predictor</a>
+                <a href="#" class="hover:text-green-400 transition flex items-center">Model</a>
+                <a href="#" class="hover:text-green-400 transition flex items-center">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Wrapper (Glassmorphism effect to contrast against dark background) -->
+    <div class="flex-1 w-full bg-white/80 backdrop-blur-md">
+        
+        <!-- Header Section -->
+        <header class="max-w-[1400px] mx-auto px-4 md:px-6 pt-10 pb-6 relative">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0f172a] drop-shadow-sm mb-2">
+                SAF Hydroprocessing RSM Predictor
+            </h1>
+            <p class="text-gray-700 font-medium text-lg mb-2">
+                Web-based prediction of Oil Yield and Freezing Point from WCO-WLO co-pyrolysis oil upgrading
+            </p>
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-[3px] bg-[#10b981]"></div>
+                <p class="text-gray-500 italic text-sm font-medium">Based on response surface methodology (RSM)</p>
+            </div>
+        </header>
+
+        <!-- Main Layout Grid -->
+        <main class="max-w-[1400px] mx-auto px-4 md:px-6 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- LEFT COLUMN: Input Parameters (4 columns width) -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                <div class="bg-white rounded-[1rem] shadow-xl border border-gray-100 overflow-hidden flex flex-col h-full">
+                    <!-- Card Header -->
+                    <div class="bg-[#1e293b] text-white px-5 py-3.5 flex items-center gap-3">
+                        <i class="fa-solid fa-sliders text-xl text-teal-400"></i>
+                        <h3 class="font-bold text-lg">Input Parameters</h3>
+                    </div>
+                    
+                    <!-- Card Body -->
+                    <div class="p-6 flex flex-col gap-8 flex-1">
+                        
+                        <!-- Input 1: Temperature -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-temperature-half text-teal-600 w-4 text-center"></i>
+                                    <label class="font-bold text-gray-800 text-sm">Reaction temperature (°C)</label>
+                                </div>
+                                <div class="flex items-center border border-gray-300 rounded px-2 bg-gray-50">
+                                    <input type="number" id="num-temp" class="w-16 text-center bg-transparent outline-none font-bold py-1" value="450" min="350" max="450" step="0.1">
+                                </div>
+                            </div>
+                            <div class="text-[11px] text-gray-500 mb-2 ml-6">350 - 450</div>
+                            <input type="range" id="slider-temp" min="350" max="450" value="450" step="0.1" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-400 font-bold mt-1">
+                                <span>350</span><span>450</span>
+                            </div>
+                        </div>
+
+                        <!-- Input 2: Time -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-regular fa-clock text-teal-600 w-4 text-center"></i>
+                                    <label class="font-bold text-gray-800 text-sm">Reaction time (h)</label>
+                                </div>
+                                <div class="flex items-center border border-gray-300 rounded px-2 bg-gray-50">
+                                    <input type="number" id="num-time" class="w-16 text-center bg-transparent outline-none font-bold py-1" value="3.0" min="1" max="3" step="0.01">
+                                </div>
+                            </div>
+                            <div class="text-[11px] text-gray-500 mb-2 ml-6">1 - 3</div>
+                            <input type="range" id="slider-time" min="1" max="3" value="3.0" step="0.01" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-400 font-bold mt-1">
+                                <span>1</span><span>3</span>
+                            </div>
+                        </div>
+
+                        <!-- Input 3: Catalyst Loading -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-flask text-teal-600 w-4 text-center"></i>
+                                    <label class="font-bold text-gray-800 text-sm">Catalyst loading (wt.%)</label>
+                                </div>
+                                <div class="flex items-center border border-gray-300 rounded px-2 bg-gray-50">
+                                    <input type="number" id="num-cat" class="w-16 text-center bg-transparent outline-none font-bold py-1" value="2.0" min="0" max="3" step="0.01">
+                                </div>
+                            </div>
+                            <div class="text-[11px] text-gray-500 mb-2 ml-6">0 - 3</div>
+                            <input type="range" id="slider-cat" min="0" max="3" value="2.0" step="0.01" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-400 font-bold mt-1">
+                                <span>0</span><span>3</span>
+                            </div>
+                        </div>
+
+                        <!-- Buttons Row -->
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-auto pt-4 border-t border-gray-100">
+                            <button onclick="calculatePredict()" class="bg-[#1e293b] text-white py-2 rounded-lg font-bold text-sm flex flex-col sm:flex-row items-center justify-center gap-1.5 hover:bg-[#0f172a] shadow-md transition active:scale-95">
+                                <i class="fa-solid fa-play text-xs"></i> Predict
+                            </button>
+                            <button onclick="useOptimum()" class="border-2 border-emerald-500 text-emerald-700 bg-emerald-50 py-2 rounded-lg font-bold text-sm flex flex-col sm:flex-row items-center justify-center gap-1.5 hover:bg-emerald-100 transition active:scale-95">
+                                <i class="fa-regular fa-circle-dot text-xs"></i> Use optimum
+                            </button>
+                            <button onclick="resetForm()" class="border-2 border-gray-200 text-gray-600 bg-gray-50 py-2 rounded-lg font-bold text-sm flex flex-col sm:flex-row items-center justify-center gap-1.5 hover:bg-gray-100 transition active:scale-95">
+                                <i class="fa-solid fa-rotate-right text-xs"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Results & Info Panels (8 columns width) -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                
+                <!-- TOP ROW: Predicted Results -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    
+                    <!-- Predicted Oil Yield -->
+                    <div class="bg-white rounded-[1rem] shadow-xl border border-gray-100 relative overflow-hidden flex flex-col justify-center items-center h-[180px] hover:shadow-2xl transition">
+                        <!-- Abstract Background Decoration -->
+                        <div class="absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-emerald-100/60 to-transparent"></div>
+                        <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-200/40 rounded-full blur-2xl"></div>
+                        
+                        <div class="flex items-center gap-2 mb-2 z-10 text-emerald-600">
+                            <i class="fa-solid fa-droplet text-xl"></i>
+                            <h3 class="font-bold text-gray-700 text-lg">Predicted Oil Yield</h3>
+                        </div>
+                        <div class="text-5xl font-black text-emerald-600 z-10 drop-shadow-sm flex items-end gap-1">
+                            <span id="res-yield">56.7</span>
+                            <span class="text-2xl font-bold mb-1">%</span>
+                        </div>
+                    </div>
+
+                    <!-- Predicted Freezing Point -->
+                    <div class="bg-white rounded-[1rem] shadow-xl border border-gray-100 relative overflow-hidden flex flex-col justify-center items-center h-[180px] hover:shadow-2xl transition">
+                        <!-- Abstract Background Decoration -->
+                        <div class="absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-sky-100/60 to-transparent"></div>
+                        <div class="absolute -left-10 -top-10 w-32 h-32 bg-sky-200/40 rounded-full blur-2xl"></div>
+                        
+                        <div class="flex items-center gap-2 mb-2 z-10 text-sky-600">
+                            <i class="fa-regular fa-snowflake text-xl"></i>
+                            <h3 class="font-bold text-gray-700 text-lg">Predicted Freezing Point</h3>
+                        </div>
+                        <div class="text-5xl font-black text-sky-600 z-10 drop-shadow-sm flex items-end gap-1">
+                            <span id="res-fp">-66.9</span>
+                            <span class="text-2xl font-bold mb-1">°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MIDDLE ROW: Info Panels -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1">
+                    
+                    <!-- Experimental Range -->
+                    <div class="bg-white rounded-[1rem] shadow-lg border border-gray-100 overflow-hidden flex flex-col">
+                        <div class="bg-[#1e293b] text-white px-4 py-3 flex items-center gap-3">
+                            <i class="fa-solid fa-layer-group text-sky-400"></i>
+                            <h3 class="font-bold text-[15px] tracking-wide">Experimental Range</h3>
+                        </div>
+                        <div class="p-5 flex-1 flex items-center">
+                            <ul class="space-y-3 text-[14px] text-gray-700 w-full">
+                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Temperature:</span> 350 – 450 °C</li>
+                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Time:</span> 1 – 3 h</li>
+                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Catalyst loading:</span> 0 – 3 wt.%</li>
+                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">H₂ pressure:</span> 40 barg</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Optimum Condition -->
+                    <div class="bg-white rounded-[1rem] shadow-lg border border-gray-100 overflow-hidden flex flex-col">
+                        <div class="bg-[#1e293b] text-white px-4 py-3 flex items-center gap-3">
+                            <i class="fa-solid fa-bullseye text-emerald-400"></i>
+                            <h3 class="font-bold text-[15px] tracking-wide">Optimum Condition</h3>
+                        </div>
+                        <div class="p-5 flex-1 flex items-center">
+                            <ul class="space-y-3 text-[14px] text-gray-700 w-full">
+                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Temperature:</span> 448.2 °C</li>
+                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Time:</span> 2.96 h</li>
+                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Catalyst loading:</span> 1.93 wt.%</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTTOM ROW: Model Notes -->
+                <div class="bg-emerald-50/50 rounded-[1rem] shadow-sm border border-emerald-200 flex flex-col sm:flex-row overflow-hidden mt-auto">
+                    <div class="bg-emerald-100/50 flex flex-row sm:flex-col items-center justify-center p-3 sm:w-40 border-b sm:border-b-0 sm:border-r border-emerald-200 gap-2">
+                        <i class="fa-regular fa-circle-info text-2xl text-emerald-700"></i>
+                        <span class="font-bold text-emerald-800 text-sm">Model Notes</span>
+                    </div>
+                    <div class="p-4 md:p-5 flex-1 flex items-center">
+                        <ul class="list-disc list-outside ml-4 text-[13px] text-gray-700 space-y-1.5 font-medium">
+                            <li>Prediction apply within the experimental design space only.</li>
+                            <li>Freezing point refers to the 5 vol.% upgraded fuel blend with Jet A-1.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Footer Footer -->
+        <footer class="bg-[#0f172a] text-center text-white py-3 text-xs tracking-wide">
+            Chemical Engineering Research Dashboard
+        </footer>
+    </div>
+
+    <!-- Script for Logic -->
+    <script>
+        // --- 1. Customizing the Range Slider Background (To match the green fill) ---
+        function syncSliderAndInput(idPrefix, min, max) {
+            const slider = document.getElementById(`slider-${idPrefix}`);
+            const num = document.getElementById(`num-${idPrefix}`);
+
+            const updateSliderBackground = (val) => {
+                const percentage = ((val - min) / (max - min)) * 100;
+                slider.style.background = `linear-gradient(to right, #10b981 ${percentage}%, #e5e7eb ${percentage}%)`;
+            };
+
+            slider.addEventListener('input', (e) => {
+                num.value = e.target.value;
+                updateSliderBackground(e.target.value);
+            });
+
+            num.addEventListener('input', (e) => {
+                let val = parseFloat(e.target.value);
+                if (!isNaN(val)) {
+                    // Restrict value within range visually
+                    if (val < min) val = min;
+                    if (val > max) val = max;
+                    slider.value = val;
+                    updateSliderBackground(val);
+                }
+            });
+
+            // Initialize Background on load
+            updateSliderBackground(slider.value);
+        }
+
+        // Initialize synchronization
+        syncSliderAndInput('temp', 350, 450);
+        syncSliderAndInput('time', 1, 3);
+        syncSliderAndInput('cat', 0, 3);
+
+        // --- 2. Math Calculations based on the provided RSM Equations ---
+        function calculatePredict() {
+            // Get raw input values
+            const temp = parseFloat(document.getElementById('num-temp').value) || 350;
+            const time = parseFloat(document.getElementById('num-time').value) || 1;
+            const cat = parseFloat(document.getElementById('num-cat').value) || 0;
+
+            // Step A: Convert Raw Values to Coded Factors (Range: -1 to 1)
+            // Center = (Max+Min)/2, Step = (Max-Min)/2
+            const A = (temp - 400) / 50;     // Center 400, Step 50
+            const B = (time - 2) / 1;        // Center 2, Step 1
+            const C = (cat - 1.5) / 1.5;     // Center 1.5, Step 1.5
+
+            // Pre-calculate squared and interaction terms
+            const A2 = A * A;
+            const B2 = B * B;
+            const C2 = C * C;
+            const AB = A * B;
+            const AC = A * C;
+            const BC = B * C;
+
+            // Equation 1: Oil Yield (y1)
+            const yieldVal = 94.10 
+                           - 16.43 * A - 3.77 * B - 1.05 * C 
+                           - 6.92 * AB + 0.5350 * AC + 0.0300 * BC 
+                           - 14.28 * A2 + 2.24 * B2 - 1.60 * C2;
+
+            // Equation 2: Freezing Point (y2)
+            const fpVal = -21.54 
+                        - 16.07 * A - 10.80 * B - 5.83 * C 
+                        - 10.28 * AB + 2.22 * AC - 5.68 * BC 
+                        - 8.89 * A2 + 1.86 * B2 - 9.29 * C2;
+
+            // Update DOM with results (Fixed to 1 decimal place to match design)
+            document.getElementById('res-yield').innerText = yieldVal.toFixed(1);
+            document.getElementById('res-fp').innerText = fpVal.toFixed(1);
+        }
+
+        // --- 3. UI Action Functions ---
+        function useOptimum() {
+            // Set optimum values
+            document.getElementById('num-temp').value = 448.2;
+            document.getElementById('slider-temp').value = 448.2;
+            
+            document.getElementById('num-time').value = 2.96;
+            document.getElementById('slider-time').value = 2.96;
+            
+            document.getElementById('num-cat').value = 1.93;
+            document.getElementById('slider-cat').value = 1.93;
+
+            // Trigger visual background updates
+            ['temp', 'time', 'cat'].forEach(id => {
+                document.getElementById(`slider-${id}`).dispatchEvent(new Event('input'));
+            });
+
+            // Calculate immediately
+            calculatePredict();
+        }
+
+        function resetForm() {
+            // Set to default middle or minimum parameters
+            document.getElementById('num-temp').value = 350;
+            document.getElementById('slider-temp').value = 350;
+            
+            document.getElementById('num-time').value = 1.0;
+            document.getElementById('slider-time').value = 1.0;
+            
+            document.getElementById('num-cat').value = 0.0;
+            document.getElementById('slider-cat').value = 0.0;
+
+            // Trigger visual background updates
+            ['temp', 'time', 'cat'].forEach(id => {
+                document.getElementById(`slider-${id}`).dispatchEvent(new Event('input'));
+            });
+
+            // Clear results display
+            document.getElementById('res-yield').innerText = "-";
+            document.getElementById('res-fp').innerText = "-";
+        }
+
+        // Calculate initially when page loads
+        window.onload = calculatePredict;
+    </script>
+</body>
+</html>
