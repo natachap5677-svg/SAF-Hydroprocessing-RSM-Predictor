@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAF Hydroprocessing RSM Predictor</title>
+    <title>Predictive Tool for Pyrolysis Oil Yield</title>
     
     <!-- Loading Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,35 +12,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Loading Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* สีพื้นหลังหลัก กรณีภาพมาไม่เต็มจอ */
+            background-color: #f1f5f9;
+        }
+
+        /* Custom Background specifically for the Header Section */
+        .header-section {
             background-image: url('Black%20ground.png');
-            /* บังคับความกว้างเต็ม 100% ความสูงเป็น auto เพื่อรักษาอัตราส่วนภาพ */
-            background-size: 100% auto; 
-            background-position: top center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            
-            /* ช่วยรักษาความคมชัดของรูปภาพขณะถูกขยายบนบราวเซอร์ */
-            image-rendering: -webkit-optimize-contrast; 
-            image-rendering: crisp-edges;
+            background-size: cover;
+            background-position: center;
         }
 
-        /* เผื่อกรณีเปิดในมือถือ (จอเล็ก) ให้ภาพพื้นหลังขยายแบบ cover */
-        @media (max-width: 768px) {
-            body {
-                background-size: cover;
-            }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
-        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3); 
+            border-radius: 10px;
+        }
 
         /* Range Slider Styling */
         input[type=range] {
@@ -48,12 +45,14 @@
             width: 100%;
             background: transparent;
         }
-        input[type=range]:focus { outline: none; }
+        input[type=range]:focus {
+            outline: none;
+        }
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
             height: 6px;
             cursor: pointer;
-            background: #e5e7eb; /* Default track color */
+            background: #e2e8f0;
             border-radius: 3px;
         }
         input[type=range]::-webkit-slider-thumb {
@@ -61,345 +60,325 @@
             width: 20px;
             border-radius: 50%;
             background: #ffffff;
-            border: 3px solid #10b981; /* Teal/Green Accent */
+            border: 3px solid #15803d;
             cursor: pointer;
             -webkit-appearance: none;
             margin-top: -7px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        .thumb-blue::-webkit-slider-thumb { border-color: #2563eb; }
+        .thumb-yellow::-webkit-slider-thumb { border-color: #eab308; }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="text-gray-800 antialiased overflow-x-hidden w-full min-h-screen flex flex-col justify-between">
 
-    <!-- Top Navbar -->
-    <nav class="w-full bg-[#0f172a] text-white shadow-md z-20 sticky top-0">
-        <div class="max-w-[1400px] mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
-            <!-- Left: Logo & Title -->
+    <!-- Header Section with the background image -->
+    <div class="header-section w-full relative pt-4 pb-8 mb-6 shadow-md">
+        <!-- Top Bar: Logo (Left) & About (Right) -->
+        <div class="w-full max-w-[1200px] mx-auto flex justify-between items-start px-4 z-30 mb-2">
+            <!-- Top Left: Logo -->
             <div class="flex items-center gap-3">
-                <!-- อย่าลืมใช้ Logo.jpg ตามที่คุณอัปโหลดมาตอนแรก -->
-                <img src="Logo.jpg" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
-                <span class="font-bold text-lg tracking-wide">SAF Hydroprocessing RSM Predictor</span>
+                <img src="Logo.png" alt="RMUTT Logo" class="h-14 sm:h-16 lg:h-20 object-contain drop-shadow-md">
+                <div class="text-white text-left drop-shadow-md">
+                    <h1 class="text-base sm:text-lg lg:text-2xl font-black leading-tight">RMUTT</h1>
+                    <p class="text-[9px] sm:text-[10px] lg:text-sm font-bold leading-tight">Rajamangala University<br>of Technology Thanyaburi</p>
+                </div>
             </div>
-            <!-- Right: Links (Removed) -->
-        </div>
-    </nav>
-
-    <!-- Main Content Wrapper (Glassmorphism effect) -->
-    <div class="flex-1 w-full bg-white/80 backdrop-blur-md">
-        
-        <!-- Header Section -->
-        <header class="max-w-[1400px] mx-auto px-4 md:px-6 pt-10 pb-6 relative">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-[#0f172a] drop-shadow-sm mb-2">
-                SAF Hydroprocessing RSM Predictor
-            </h1>
-            <p class="text-gray-700 font-medium text-lg mb-2">
-                Web-based prediction of Oil Yield and Freezing Point from WCO-WLO co-pyrolysis oil upgrading
-            </p>
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-[3px] bg-[#10b981]"></div>
-                <p class="text-gray-500 italic text-sm font-medium">Based on response surface methodology (RSM)</p>
-            </div>
-        </header>
-
-        <!-- Main Layout Grid -->
-        <main class="max-w-[1400px] mx-auto px-4 md:px-6 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <!-- LEFT COLUMN: Input Parameters (4 columns width) -->
-            <div class="lg:col-span-4 flex flex-col gap-6">
-                <div class="bg-white rounded-[1rem] shadow-xl border border-gray-100 overflow-hidden flex flex-col h-full">
-                    <!-- Card Header -->
-                    <div class="bg-[#1e293b] text-white px-5 py-3.5 flex items-center gap-3">
-                        <i class="fa-solid fa-sliders text-xl text-teal-400"></i>
-                        <h3 class="font-bold text-lg">Input Parameters</h3>
+            <!-- Top Right: About Button -->
+            <div class="flex">
+                <button class="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white font-bold py-1.5 px-4 sm:py-2 sm:px-6 rounded-full shadow-lg flex items-center gap-2 transition text-xs sm:text-sm lg:text-base border border-white/50">
+                    <i class="fa-solid fa-circle-info"></i> About
+                </button>
+            </div>
+        </div>
+
+        <!-- Center Titles Section -->
+        <div class="w-full max-w-[1200px] mx-auto z-10 relative flex flex-col items-center px-4 mt-6">
+            <!-- Main Title -->
+            <h2 class="w-full text-center text-sm sm:text-base lg:text-2xl xl:text-3xl font-extrabold text-white mb-2 lg:mb-3 drop-shadow-lg leading-tight">
+                Catalytic Co-Pyrolysis of Waste Palm Oil<br class="hidden sm:block">and Used Lubricating Oil over CaO/ZSM-5
+            </h2>
+            
+            <!-- Tool Name Bar -->
+            <div class="w-full bg-white/10 backdrop-blur-md text-white font-bold text-xs sm:text-sm lg:text-lg px-6 py-3 lg:py-4 rounded-xl shadow-md border border-white/20 text-center">
+                Predictive Tool for Pyrolysis Oil Yield and Fuel Properties
+                <span class="text-[11px] lg:text-sm font-semibold text-gray-200 block mt-1">(Based on RSM model, CaO:ZSM-5 = 2:1)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content wrapper -->
+    <div class="flex-1 w-full flex items-center justify-center px-4 z-10">
+        <main class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            
+            <!-- Left Panel: Input Section -->
+            <section class="bg-white rounded-[1.5rem] shadow-xl flex flex-col overflow-hidden border border-gray-100">
+                <div class="bg-[#15803d] px-4 sm:px-6 py-3 flex justify-between items-center text-white">
+                    <div class="flex items-center gap-2 lg:gap-3">
+                        <i class="fa-solid fa-gear text-lg lg:text-2xl"></i>
+                        <h3 class="text-lg lg:text-2xl font-bold">Input</h3>
                     </div>
-                    
-                    <!-- Card Body -->
-                    <div class="p-6 flex flex-col gap-8 flex-1">
-                        
-                        <!-- Input 1: Temperature -->
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-temperature-half text-teal-600 w-4 text-center"></i>
-                                    <label class="font-bold text-gray-800 text-sm">Reaction temperature (°C)</label>
-                                </div>
-                                <div class="flex items-center border border-gray-300 rounded px-2 bg-gray-50">
-                                    <input type="number" id="num-temp" class="w-16 text-center bg-transparent outline-none font-bold py-1" value="450" min="350" max="450" step="0.1">
-                                </div>
-                            </div>
-                            <div class="text-[11px] text-gray-500 mb-2 ml-6">350 - 450</div>
-                            <input type="range" id="slider-temp" min="350" max="450" value="450" step="0.1" class="w-full">
-                            <div class="flex justify-between text-xs text-gray-400 font-bold mt-1">
-                                <span>350</span><span>450</span>
-                            </div>
-                        </div>
-
-                        <!-- Input 2: Time -->
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-regular fa-clock text-teal-600 w-4 text-center"></i>
-                                    <label class="font-bold text-gray-800 text-sm">Reaction time (h)</label>
-                                </div>
-                                <div class="flex items-center border border-gray-300 rounded px-2 bg-gray-50">
-                                    <input type="number" id="num-time" class="w-16 text-center bg-transparent outline-none font-bold py-1" value="3.0" min="1" max="3" step="0.01">
-                                </div>
-                            </div>
-                            <div class="text-[11px] text-gray-500 mb-2 ml-6">1 - 3</div>
-                            <input type="range" id="slider-time" min="1" max="3" value="3.0" step="0.01" class="w-full">
-                            <div class="flex justify-between text-xs text-gray-400 font-bold mt-1">
-                                <span>1</span><span>3</span>
-                            </div>
-                        </div>
-
-                        <!-- Input 3: Catalyst Loading -->
-                        <div>
-                            <div class="flex justify-between items-center mb-1">
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-flask text-teal-600 w-4 text-center"></i>
-                                    <label class="font-bold text-gray-800 text-sm">Catalyst loading (wt.%)</label>
-                                </div>
-                                <div class="flex items-center border border-gray-300 rounded px-2 bg-gray-50">
-                                    <input type="number" id="num-cat" class="w-16 text-center bg-transparent outline-none font-bold py-1" value="2.0" min="0" max="3" step="0.01">
-                                </div>
-                            </div>
-                            <div class="text-[11px] text-gray-500 mb-2 ml-6">0 - 3</div>
-                            <input type="range" id="slider-cat" min="0" max="3" value="2.0" step="0.01" class="w-full">
-                            <div class="flex justify-between text-xs text-gray-400 font-bold mt-1">
-                                <span>0</span><span>3</span>
-                            </div>
-                        </div>
-
-                        <!-- Buttons Row -->
-                        <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-auto pt-4 border-t border-gray-100">
-                            <button onclick="calculatePredict()" class="bg-[#1e293b] text-white py-2 rounded-lg font-bold text-sm flex flex-col sm:flex-row items-center justify-center gap-1.5 hover:bg-[#0f172a] shadow-md transition active:scale-95">
-                                <i class="fa-solid fa-play text-xs"></i> Predict
-                            </button>
-                            <button onclick="useOptimum()" class="border-2 border-emerald-500 text-emerald-700 bg-emerald-50 py-2 rounded-lg font-bold text-sm flex flex-col sm:flex-row items-center justify-center gap-1.5 hover:bg-emerald-100 transition active:scale-95">
-                                <i class="fa-regular fa-circle-dot text-xs"></i> Use optimum
-                            </button>
-                            <button onclick="resetForm()" class="border-2 border-gray-200 text-gray-600 bg-gray-50 py-2 rounded-lg font-bold text-sm flex flex-col sm:flex-row items-center justify-center gap-1.5 hover:bg-gray-100 transition active:scale-95">
-                                <i class="fa-solid fa-rotate-right text-xs"></i> Reset
-                            </button>
-                        </div>
+                    <div class="text-right text-[10px] sm:text-xs lg:text-sm leading-tight text-green-50 font-medium opacity-90">
+                        Set operating conditions<br>(within experimental range)
                     </div>
                 </div>
-            </div>
-
-            <!-- RIGHT COLUMN: Results & Info Panels (8 columns width) -->
-            <div class="lg:col-span-8 flex flex-col gap-6">
                 
-                <!-- TOP ROW: Predicted Results -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    
-                    <!-- Predicted Oil Yield -->
-                    <div class="bg-white rounded-[1rem] shadow-xl border border-gray-100 relative overflow-hidden flex flex-col justify-center items-center h-[180px] hover:shadow-2xl transition">
-                        <!-- Abstract Background Decoration -->
-                        <div class="absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-emerald-100/60 to-transparent"></div>
-                        <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-200/40 rounded-full blur-2xl"></div>
-                        
-                        <div class="flex items-center gap-2 mb-2 z-10 text-emerald-600">
-                            <i class="fa-solid fa-droplet text-xl"></i>
-                            <h3 class="font-bold text-gray-700 text-lg">Predicted Oil Yield</h3>
+                <div class="p-4 sm:p-6 lg:p-8 flex-1 flex flex-col gap-5 lg:gap-8">
+                    <!-- Variable 1: Temperature -->
+                    <div class="flex items-start gap-3 lg:gap-4">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center text-[#15803d] flex-shrink-0 bg-green-50 rounded-full shadow-inner mt-1">
+                            <i class="fa-solid fa-temperature-half text-xl lg:text-2xl"></i>
                         </div>
-                        <div class="text-5xl font-black text-emerald-600 z-10 drop-shadow-sm flex items-end gap-1">
-                            <span id="res-yield">56.7</span>
-                            <span class="text-2xl font-bold mb-1">%</span>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1.5 lg:mb-2">
+                                <label class="font-bold text-gray-900 text-sm lg:text-base">Pyrolysis Temperature (°C)</label>
+                                <input type="number" id="num-temp" class="w-16 lg:w-20 text-center rounded-lg border-2 border-gray-200 bg-gray-50 shadow-inner focus:ring-[#15803d] focus:border-[#15803d] py-1 lg:py-1.5 font-bold text-sm lg:text-base" value="475" min="400" max="550">
+                            </div>
+                            <input type="range" id="slider-temp" min="400" max="550" value="475" class="w-full">
+                            <div class="flex justify-between text-[11px] lg:text-xs text-gray-600 mt-1.5 font-semibold">
+                                <span>400</span>
+                                <span class="text-gray-400 font-normal hidden sm:inline">Range: 400 - 550 °C</span>
+                                <span>550</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Predicted Freezing Point -->
-                    <div class="bg-white rounded-[1rem] shadow-xl border border-gray-100 relative overflow-hidden flex flex-col justify-center items-center h-[180px] hover:shadow-2xl transition">
-                        <!-- Abstract Background Decoration -->
-                        <div class="absolute bottom-0 w-full h-[60%] bg-gradient-to-t from-sky-100/60 to-transparent"></div>
-                        <div class="absolute -left-10 -top-10 w-32 h-32 bg-sky-200/40 rounded-full blur-2xl"></div>
-                        
-                        <div class="flex items-center gap-2 mb-2 z-10 text-sky-600">
-                            <i class="fa-regular fa-snowflake text-xl"></i>
-                            <h3 class="font-bold text-gray-700 text-lg">Predicted Freezing Point</h3>
+                    <!-- Variable 2: Catalyst Loading -->
+                    <div class="flex items-start gap-3 lg:gap-4">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center text-[#2563eb] flex-shrink-0 bg-blue-50 rounded-full shadow-inner mt-1">
+                            <i class="fa-solid fa-flask text-xl lg:text-2xl"></i>
                         </div>
-                        <div class="text-5xl font-black text-sky-600 z-10 drop-shadow-sm flex items-end gap-1">
-                            <span id="res-fp">-66.9</span>
-                            <span class="text-2xl font-bold mb-1">°C</span>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1.5 lg:mb-2">
+                                <label class="font-bold text-gray-900 text-sm lg:text-base">Catalyst Loading (wt.%) <span class="text-[10px] lg:text-xs font-normal text-gray-500 sm:inline block">(CaO/ZSM-5 = 2:1)</span></label>
+                                <input type="number" id="num-cat" class="w-16 lg:w-20 text-center rounded-lg border-2 border-gray-200 bg-gray-50 shadow-inner focus:ring-[#2563eb] focus:border-[#2563eb] py-1 lg:py-1.5 font-bold text-sm lg:text-base" value="0.25" min="0" max="0.5" step="0.01">
+                            </div>
+                            <input type="range" id="slider-cat" min="0" max="0.5" step="0.01" value="0.25" class="w-full thumb-blue">
+                            <div class="flex justify-between text-[11px] lg:text-xs text-gray-600 mt-1.5 font-semibold">
+                                <span>0</span>
+                                <span class="text-gray-400 font-normal hidden sm:inline">Range: 0 - 0.5 wt.%</span>
+                                <span>0.5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Variable 3: ULO Fraction -->
+                    <div class="flex items-start gap-3 lg:gap-4">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center text-[#eab308] flex-shrink-0 bg-yellow-50 rounded-full shadow-inner mt-1 relative">
+                            <i class="fa-solid fa-droplet text-[18px] lg:text-[20px] opacity-70 absolute -left-1 top-1.5 lg:top-2"></i>
+                            <i class="fa-solid fa-droplet text-xl lg:text-2xl relative z-10"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1.5 lg:mb-2">
+                                <label class="font-bold text-gray-900 text-sm lg:text-base">ULO Fraction in WPO:ULO (wt.%)</label>
+                                <input type="number" id="num-ulo" class="w-16 lg:w-20 text-center rounded-lg border-2 border-gray-200 bg-gray-50 shadow-inner focus:ring-[#eab308] focus:border-[#eab308] py-1 lg:py-1.5 font-bold text-sm lg:text-base" value="50" min="20" max="80">
+                            </div>
+                            <input type="range" id="slider-ulo" min="20" max="80" value="50" class="w-full thumb-yellow">
+                            <div class="flex justify-between text-[11px] lg:text-xs text-gray-600 mt-1.5 font-semibold">
+                                <span>20</span>
+                                <span class="text-gray-400 font-normal hidden sm:inline">Range: 20 - 80 wt.%</span>
+                                <span>80</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 lg:gap-4 pt-2 lg:pt-4 mt-auto justify-center">
+                        <button onclick="calculatePredict()" class="flex-1 bg-[#1e3a8a] hover:bg-[#1e40af] text-white font-bold py-2.5 lg:py-3 px-4 rounded-xl shadow-md transform transition active:scale-95 flex justify-center items-center gap-2 text-sm lg:text-base">
+                            <i class="fa-solid fa-calculator"></i> Predict
+                        </button>
+                        <button onclick="resetForm()" class="flex-1 bg-[#f8fafc] hover:bg-gray-100 text-[#1e3a8a] font-bold py-2.5 lg:py-3 px-4 rounded-xl shadow-md border-2 border-[#1e3a8a] transform transition active:scale-95 flex justify-center items-center gap-2 text-sm lg:text-base">
+                            <i class="fa-solid fa-rotate-right"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Results Section -->
+            <section class="bg-white rounded-[1.5rem] shadow-xl flex flex-col overflow-hidden border border-gray-100">
+                <div class="bg-[#1e40af] px-4 sm:px-6 py-3 flex justify-between items-center text-white">
+                    <div class="flex items-center gap-2 lg:gap-3">
+                        <i class="fa-solid fa-chart-simple text-lg lg:text-2xl"></i>
+                        <h3 class="text-lg lg:text-2xl font-bold">Predicted Results</h3>
+                    </div>
+                    <div class="text-right text-[10px] sm:text-xs lg:text-sm leading-tight text-blue-100 font-medium opacity-90">
+                        Estimated values based on<br>the developed RSM model
+                    </div>
+                </div>
+                
+                <div class="p-4 sm:p-5 lg:p-6 flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 content-center">
+                    <!-- Result Card: Oil yield -->
+                    <div class="bg-[#f0f9ff] border border-blue-100 rounded-xl p-3 lg:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition">
+                        <div class="bg-green-50 p-2 lg:p-3 rounded-full text-[#15803d]">
+                            <i class="fa-solid fa-droplet text-xl lg:text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] lg:text-xs text-gray-700 font-bold leading-tight mb-0.5">Oil yield<br><span class="font-normal">(wt.%)</span></p>
+                            <p class="text-lg lg:text-2xl font-black text-gray-900" id="res-yield">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Result Card: Cetane index -->
+                    <div class="bg-[#f0f9ff] border border-blue-100 rounded-xl p-3 lg:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition">
+                        <div class="bg-blue-50 p-2 lg:p-3 rounded-full text-[#1e3a8a]">
+                            <i class="fa-solid fa-gas-pump text-xl lg:text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] lg:text-xs text-gray-700 font-bold leading-tight mb-0.5">Cetane index<br>&nbsp;</p>
+                            <p class="text-lg lg:text-2xl font-black text-gray-900" id="res-cetane">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Result Card: Density -->
+                    <div class="bg-[#f0f9ff] border border-blue-100 rounded-xl p-3 lg:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition">
+                        <div class="bg-blue-50 p-2 lg:p-3 rounded-full text-[#1e3a8a]">
+                            <i class="fa-solid fa-flask text-xl lg:text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] lg:text-xs text-gray-700 font-bold leading-tight mb-0.5">Density @15.6 °C<br><span class="font-normal">(g/mL)</span></p>
+                            <p class="text-lg lg:text-2xl font-black text-gray-900" id="res-density">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Result Card: Viscosity -->
+                    <div class="bg-[#f0f9ff] border border-blue-100 rounded-xl p-3 lg:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition">
+                        <div class="bg-blue-50 p-2 lg:p-3 rounded-full text-[#3b82f6]">
+                            <i class="fa-solid fa-tint text-xl lg:text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] lg:text-xs text-gray-700 font-bold leading-tight mb-0.5">Viscosity @40 °C<br><span class="font-normal">(cSt)</span></p>
+                            <p class="text-lg lg:text-2xl font-black text-gray-900" id="res-viscosity">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Result Card: Flash point -->
+                    <div class="bg-[#f0f9ff] border border-blue-100 rounded-xl p-3 lg:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition">
+                        <div class="bg-orange-50 p-2 lg:p-3 rounded-full text-[#ea580c]">
+                            <i class="fa-solid fa-fire text-xl lg:text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] lg:text-xs text-gray-700 font-bold leading-tight mb-0.5">Flash point<br><span class="font-normal">(°C)</span></p>
+                            <p class="text-lg lg:text-2xl font-black text-gray-900" id="res-flash">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Result Card: T90 -->
+                    <div class="bg-[#f0f9ff] border border-blue-100 rounded-xl p-3 lg:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition">
+                        <div class="bg-orange-50 p-2 lg:p-3 rounded-full text-[#f97316]">
+                            <i class="fa-solid fa-thermometer-three-quarters text-xl lg:text-2xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[11px] lg:text-xs text-gray-700 font-bold leading-tight mb-0.5">T90 / Distillation<br><span class="font-normal">temp. (°C)</span></p>
+                            <p class="text-lg lg:text-2xl font-black text-gray-900" id="res-t90">-</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- MIDDLE ROW: Info Panels -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1">
-                    
-                    <!-- Experimental Range -->
-                    <div class="bg-white rounded-[1rem] shadow-lg border border-gray-100 overflow-hidden flex flex-col">
-                        <div class="bg-[#1e293b] text-white px-4 py-3 flex items-center gap-3">
-                            <i class="fa-solid fa-layer-group text-sky-400"></i>
-                            <h3 class="font-bold text-[15px] tracking-wide">Experimental Range</h3>
-                        </div>
-                        <div class="p-5 flex-1 flex items-center">
-                            <ul class="space-y-3 text-[14px] text-gray-700 w-full">
-                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Temperature:</span> 350 – 450 °C</li>
-                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Time:</span> 1 – 3 h</li>
-                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Catalyst loading:</span> 0 – 3 wt.%</li>
-                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">H₂ pressure:</span> 40 barg</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Optimum Condition -->
-                    <div class="bg-white rounded-[1rem] shadow-lg border border-gray-100 overflow-hidden flex flex-col">
-                        <div class="bg-[#1e293b] text-white px-4 py-3 flex items-center gap-3">
-                            <i class="fa-solid fa-bullseye text-emerald-400"></i>
-                            <h3 class="font-bold text-[15px] tracking-wide">Optimum Condition</h3>
-                        </div>
-                        <div class="p-5 flex-1 flex items-center">
-                            <ul class="space-y-3 text-[14px] text-gray-700 w-full">
-                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Temperature:</span> 448.2 °C</li>
-                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Time:</span> 2.96 h</li>
-                                <li class="flex items-center"><span class="w-5 text-emerald-500 text-lg leading-none">•</span><span class="w-36 font-semibold">Catalyst loading:</span> 1.93 wt.%</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BOTTOM ROW: Model Notes -->
-                <div class="bg-emerald-50/50 rounded-[1rem] shadow-sm border border-emerald-200 flex flex-col sm:flex-row overflow-hidden mt-auto">
-                    <div class="bg-emerald-100/50 flex flex-row sm:flex-col items-center justify-center p-3 sm:w-40 border-b sm:border-b-0 sm:border-r border-emerald-200 gap-2">
-                        <i class="fa-solid fa-file-lines text-2xl text-emerald-700"></i>
-                        <span class="font-bold text-emerald-800 text-sm">Model Notes</span>
-                    </div>
-                    <div class="p-4 md:p-5 flex-1 flex items-center">
-                        <ul class="list-disc list-outside ml-4 text-[13px] text-gray-700 space-y-1.5 font-medium">
-                            <li>Prediction apply within the experimental design space only.</li>
-                            <li>Freezing point refers to the 5 vol.% upgraded fuel blend with Jet A-1.</li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
+            </section>
         </main>
+    </div>
 
-        <!-- Footer -->
-        <footer class="bg-[#0f172a] text-center text-white py-3 text-xs tracking-wide">
-            Chemical Engineering Research Dashboard
+    <!-- Footer Responsive -->
+    <div class="w-full flex justify-center px-4 pt-4 pb-6 z-10">
+        <footer class="w-full max-w-[1200px] bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-gray-200 flex items-start gap-3">
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#1e3a8a] text-white flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 lg:mt-1">
+                <i class="fa-solid fa-info text-xs sm:text-sm"></i>
+            </div>
+            <div class="flex items-start gap-2 mt-0.5 lg:mt-1">
+                <span class="font-black text-[#1e3a8a] whitespace-nowrap text-[13px] sm:text-sm lg:text-base">Note:</span>
+                <ul class="text-[11px] sm:text-xs lg:text-sm font-medium text-gray-600 list-disc list-outside ml-3 space-y-0.5 lg:space-y-1 leading-snug">
+                    <li>Predictions are valid only within the experimental ranges: Temperature 400–550 °C, Catalyst loading 0–0.5 wt.% (CaO/ZSM-5 = 2:1), and ULO fraction 20–80 wt.%.</li>
+                    <li>This tool is intended for preliminary estimation of pyrolysis oil yield and fuel properties.</li>
+                    <li>Experimental validation is recommended for outside ranges.</li>
+                </ul>
+            </div>
         </footer>
     </div>
 
-    <!-- Script for Logic -->
     <script>
-        // --- 1. Customizing the Range Slider Background ---
-        function syncSliderAndInput(idPrefix, min, max) {
-            const slider = document.getElementById(`slider-${idPrefix}`);
-            const num = document.getElementById(`num-${idPrefix}`);
+        // Utility function to sync sliders and number inputs
+        function syncInputs(sliderId, numId) {
+            const slider = document.getElementById(sliderId);
+            const num = document.getElementById(numId);
 
-            const updateSliderBackground = (val) => {
-                const percentage = ((val - min) / (max - min)) * 100;
-                slider.style.background = `linear-gradient(to right, #10b981 ${percentage}%, #e5e7eb ${percentage}%)`;
-            };
-
-            slider.addEventListener('input', (e) => {
-                num.value = e.target.value;
-                updateSliderBackground(e.target.value);
+            slider.addEventListener('input', function() {
+                num.value = this.value;
             });
 
-            num.addEventListener('input', (e) => {
-                let val = parseFloat(e.target.value);
-                if (!isNaN(val)) {
-                    if (val < min) val = min;
-                    if (val > max) val = max;
+            num.addEventListener('input', function() {
+                let val = parseFloat(this.value);
+                let min = parseFloat(this.min);
+                let max = parseFloat(this.max);
+                
+                if (val >= min && val <= max) {
                     slider.value = val;
-                    updateSliderBackground(val);
                 }
             });
 
-            // Initialize Background on load
-            updateSliderBackground(slider.value);
-        }
-
-        // Initialize synchronization
-        syncSliderAndInput('temp', 350, 450);
-        syncSliderAndInput('time', 1, 3);
-        syncSliderAndInput('cat', 0, 3);
-
-        // --- 2. Math Calculations based on the provided RSM Equations ---
-        function calculatePredict() {
-            // Get raw input values
-            const temp = parseFloat(document.getElementById('num-temp').value) || 350;
-            const time = parseFloat(document.getElementById('num-time').value) || 1;
-            const cat = parseFloat(document.getElementById('num-cat').value) || 0;
-
-            // Step A: Convert Raw Values to Coded Factors (Range: -1 to 1)
-            const A = (temp - 400) / 50;     // Center 400, Step 50
-            const B = (time - 2) / 1;        // Center 2, Step 1
-            const C = (cat - 1.5) / 1.5;     // Center 1.5, Step 1.5
-
-            // Pre-calculate squared and interaction terms
-            const A2 = A * A;
-            const B2 = B * B;
-            const C2 = C * C;
-            const AB = A * B;
-            const AC = A * C;
-            const BC = B * C;
-
-            // Equation 1: Oil Yield (y1)
-            const yieldVal = 94.10 
-                           - 16.43 * A - 3.77 * B - 1.05 * C 
-                           - 6.92 * AB + 0.5350 * AC + 0.0300 * BC 
-                           - 14.28 * A2 + 2.24 * B2 - 1.60 * C2;
-
-            // Equation 2: Freezing Point (y2)
-            const fpVal = -21.54 
-                        - 16.07 * A - 10.80 * B - 5.83 * C 
-                        - 10.28 * AB + 2.22 * AC - 5.68 * BC 
-                        - 8.89 * A2 + 1.86 * B2 - 9.29 * C2;
-
-            // Update DOM with results
-            document.getElementById('res-yield').innerText = yieldVal.toFixed(1);
-            document.getElementById('res-fp').innerText = fpVal.toFixed(1);
-        }
-
-        // --- 3. UI Action Functions ---
-        function useOptimum() {
-            // Set optimum values
-            document.getElementById('num-temp').value = 448.2;
-            document.getElementById('slider-temp').value = 448.2;
-            
-            document.getElementById('num-time').value = 2.96;
-            document.getElementById('slider-time').value = 2.96;
-            
-            document.getElementById('num-cat').value = 1.93;
-            document.getElementById('slider-cat').value = 1.93;
-
-            // Trigger visual background updates
-            ['temp', 'time', 'cat'].forEach(id => {
-                document.getElementById(`slider-${id}`).dispatchEvent(new Event('input'));
+            num.addEventListener('blur', function() {
+                let val = parseFloat(this.value);
+                let min = parseFloat(this.min);
+                let max = parseFloat(this.max);
+                
+                if (isNaN(val) || val < min) this.value = min;
+                else if (val > max) this.value = max;
+                slider.value = this.value;
             });
-
-            // Calculate immediately
-            calculatePredict();
         }
 
+        // Initialize syncs
+        syncInputs('slider-temp', 'num-temp');
+        syncInputs('slider-cat', 'num-cat');
+        syncInputs('slider-ulo', 'num-ulo');
+
+        // Reset function
         function resetForm() {
-            // Set to default parameters
-            document.getElementById('num-temp').value = 350;
-            document.getElementById('slider-temp').value = 350;
+            document.getElementById('slider-temp').value = 475;
+            document.getElementById('num-temp').value = 475;
             
-            document.getElementById('num-time').value = 1.0;
-            document.getElementById('slider-time').value = 1.0;
+            document.getElementById('slider-cat').value = 0.25;
+            document.getElementById('num-cat').value = 0.25;
             
-            document.getElementById('num-cat').value = 0.0;
-            document.getElementById('slider-cat').value = 0.0;
+            document.getElementById('slider-ulo').value = 50;
+            document.getElementById('num-ulo').value = 50;
 
-            // Trigger visual background updates
-            ['temp', 'time', 'cat'].forEach(id => {
-                document.getElementById(`slider-${id}`).dispatchEvent(new Event('input'));
-            });
-
-            // Clear results display
-            document.getElementById('res-yield').innerText = "-";
-            document.getElementById('res-fp').innerText = "-";
+            document.getElementById('res-yield').innerText = '-';
+            document.getElementById('res-cetane').innerText = '-';
+            document.getElementById('res-density').innerText = '-';
+            document.getElementById('res-viscosity').innerText = '-';
+            document.getElementById('res-flash').innerText = '-';
+            document.getElementById('res-t90').innerText = '-';
         }
 
-        // Calculate initially when page loads
-        window.onload = calculatePredict;
+        // Main Calculation Function
+        function calculatePredict() {
+            const temp = parseFloat(document.getElementById('num-temp').value);
+            const cat = parseFloat(document.getElementById('num-cat').value);
+            const ulo = parseFloat(document.getElementById('num-ulo').value);
+
+            // Calculate coded factors A, B, C
+            const A = (temp - 475) / 75;
+            const B = (cat - 0.25) / 0.25;
+            const C = (ulo - 50) / 30;
+
+            // Evaluate RSM Equations
+            const yieldVal = 66.83 + 22.31*A - 2.74*B - 4.73*C + 8.21*A*B + 5.01*A*C - 14.86*B*C;
+            const densityVal = 0.8363 + 0.0129*A + 0.0034*B - 0.0130*C;
+            const viscosityVal = 3.92 + 1.49*A - 0.1066*B - 0.6013*C;
+            const flashVal = 34.97 - 1.28*A + 0.5625*B + 1.84*C - 2.50*A*B - 2.45*A*C + 0.6250*B*C;
+            const t90Val = 370.59 + 37.42*A - 1.09*B - 2.39*C;
+            
+            const cetaneVal = 57.57 + 3.84*A - 1.99*B + 4.19*C + 3.67*A*B + 0.2450*A*C + 0.9275*B*C 
+                              - 4.57*Math.pow(A, 2) - 0.5080*Math.pow(B, 2) + 1.81*Math.pow(C, 2);
+
+            // Update DOM with formatted results
+            document.getElementById('res-yield').innerText = yieldVal.toFixed(2);
+            document.getElementById('res-density').innerText = densityVal.toFixed(4);
+            document.getElementById('res-viscosity').innerText = viscosityVal.toFixed(2);
+            document.getElementById('res-flash').innerText = flashVal.toFixed(2);
+            document.getElementById('res-t90').innerText = t90Val.toFixed(2);
+            document.getElementById('res-cetane').innerText = cetaneVal.toFixed(2);
+        }
     </script>
 </body>
 </html>
