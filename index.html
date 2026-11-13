@@ -17,7 +17,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-image: url('Black ground.jpg');
+            /* แทนที่การเว้นวรรคด้วย %20 เพื่อให้เบราว์เซอร์อ่านชื่อไฟล์ได้ถูกต้อง */
+            background-image: url('Black%20ground.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -62,16 +63,10 @@
         <div class="max-w-[1400px] mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
             <!-- Left: Logo & Title -->
             <div class="flex items-center gap-3">
-                <img src="Logo.jpg" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
-                <span class="font-bold text-lg hidden sm:block tracking-wide">SAF Hydroprocessing RSM Predictor</span>
+                <img src="Logo.png" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
+                <span class="font-bold text-lg tracking-wide">SAF Hydroprocessing RSM Predictor</span>
             </div>
-            <!-- Right: Links -->
-            <div class="flex gap-4 md:gap-8 text-sm font-medium">
-                <a href="#" class="hover:text-green-400 transition flex items-center">Home</a>
-                <a href="#" class="bg-teal-600/30 text-teal-400 px-4 py-1.5 rounded-full border border-teal-500/50 flex items-center">Predictor</a>
-                <a href="#" class="hover:text-green-400 transition flex items-center">Model</a>
-                <a href="#" class="hover:text-green-400 transition flex items-center">About</a>
-            </div>
+            <!-- Right: Links (Removed as requested) -->
         </div>
     </nav>
 
@@ -268,7 +263,7 @@
             </div>
         </main>
 
-        <!-- Footer Footer -->
+        <!-- Footer -->
         <footer class="bg-[#0f172a] text-center text-white py-3 text-xs tracking-wide">
             Chemical Engineering Research Dashboard
         </footer>
