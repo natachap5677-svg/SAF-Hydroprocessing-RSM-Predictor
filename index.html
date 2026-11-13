@@ -17,11 +17,13 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            /* แทนที่การเว้นวรรคด้วย %20 เพื่อให้เบราว์เซอร์อ่านชื่อไฟล์ได้ถูกต้อง */
-            background-image: url('Black%20ground.png');
-            background-size: cover;
-            background-position: center;
+            background-image: url('Black%20ground.jpg');
+            /* บังคับให้รูปพื้นหลังกว้างและสูงพอดีกับหน้าจอเสมอ (ไม่ซูมจนล้น) */
+            background-size: 100vw 100vh; 
+            background-position: center top;
             background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #0f172a; /* สีสำรองกรณีจอใหญ่กว่ารูป */
         }
 
         /* Custom scrollbar */
@@ -63,14 +65,14 @@
         <div class="max-w-[1400px] mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
             <!-- Left: Logo & Title -->
             <div class="flex items-center gap-3">
-                <img src="Logo.png" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
+                <img src="Logo.jpg" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
                 <span class="font-bold text-lg tracking-wide">SAF Hydroprocessing RSM Predictor</span>
             </div>
             <!-- Right: Links (Removed as requested) -->
         </div>
     </nav>
 
-    <!-- Main Content Wrapper (Glassmorphism effect to contrast against dark background) -->
+    <!-- Main Content Wrapper (Glassmorphism effect) -->
     <div class="flex-1 w-full bg-white/80 backdrop-blur-md">
         
         <!-- Header Section -->
@@ -249,7 +251,8 @@
                 <!-- BOTTOM ROW: Model Notes -->
                 <div class="bg-emerald-50/50 rounded-[1rem] shadow-sm border border-emerald-200 flex flex-col sm:flex-row overflow-hidden mt-auto">
                     <div class="bg-emerald-100/50 flex flex-row sm:flex-col items-center justify-center p-3 sm:w-40 border-b sm:border-b-0 sm:border-r border-emerald-200 gap-2">
-                        <i class="fa-regular fa-circle-info text-2xl text-emerald-700"></i>
+                        <!-- เปลี่ยนเป็นไอคอน Solid แบบใหม่ที่แสดงผลได้แน่นอน -->
+                        <i class="fa-solid fa-file-lines text-2xl text-emerald-700"></i>
                         <span class="font-bold text-emerald-800 text-sm">Model Notes</span>
                     </div>
                     <div class="p-4 md:p-5 flex-1 flex items-center">
@@ -271,7 +274,7 @@
 
     <!-- Script for Logic -->
     <script>
-        // --- 1. Customizing the Range Slider Background (To match the green fill) ---
+        // --- 1. Customizing the Range Slider Background ---
         function syncSliderAndInput(idPrefix, min, max) {
             const slider = document.getElementById(`slider-${idPrefix}`);
             const num = document.getElementById(`num-${idPrefix}`);
@@ -289,7 +292,6 @@
             num.addEventListener('input', (e) => {
                 let val = parseFloat(e.target.value);
                 if (!isNaN(val)) {
-                    // Restrict value within range visually
                     if (val < min) val = min;
                     if (val > max) val = max;
                     slider.value = val;
@@ -314,7 +316,6 @@
             const cat = parseFloat(document.getElementById('num-cat').value) || 0;
 
             // Step A: Convert Raw Values to Coded Factors (Range: -1 to 1)
-            // Center = (Max+Min)/2, Step = (Max-Min)/2
             const A = (temp - 400) / 50;     // Center 400, Step 50
             const B = (time - 2) / 1;        // Center 2, Step 1
             const C = (cat - 1.5) / 1.5;     // Center 1.5, Step 1.5
@@ -339,7 +340,7 @@
                         - 10.28 * AB + 2.22 * AC - 5.68 * BC 
                         - 8.89 * A2 + 1.86 * B2 - 9.29 * C2;
 
-            // Update DOM with results (Fixed to 1 decimal place to match design)
+            // Update DOM with results
             document.getElementById('res-yield').innerText = yieldVal.toFixed(1);
             document.getElementById('res-fp').innerText = fpVal.toFixed(1);
         }
@@ -366,7 +367,7 @@
         }
 
         function resetForm() {
-            // Set to default middle or minimum parameters
+            // Set to default parameters
             document.getElementById('num-temp').value = 350;
             document.getElementById('slider-temp').value = 350;
             
