@@ -17,12 +17,24 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* สีพื้นหลังหลัก กรณีภาพมาไม่เต็มจอ */
             background-image: url('Black%20ground.png');
-            background-size: cover;
-            background-position: center top;
+            /* บังคับความกว้างเต็ม 100% ความสูงเป็น auto เพื่อรักษาอัตราส่วนภาพ */
+            background-size: 100% auto; 
+            background-position: top center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            background-color: #0f172a; 
+            
+            /* ช่วยรักษาความคมชัดของรูปภาพขณะถูกขยายบนบราวเซอร์ */
+            image-rendering: -webkit-optimize-contrast; 
+            image-rendering: crisp-edges;
+        }
+
+        /* เผื่อกรณีเปิดในมือถือ (จอเล็ก) ให้ภาพพื้นหลังขยายแบบ cover */
+        @media (max-width: 768px) {
+            body {
+                background-size: cover;
+            }
         }
 
         /* Custom scrollbar */
@@ -41,7 +53,7 @@
             width: 100%;
             height: 6px;
             cursor: pointer;
-            background: #e5e7eb; 
+            background: #e5e7eb; /* Default track color */
             border-radius: 3px;
         }
         input[type=range]::-webkit-slider-thumb {
@@ -49,7 +61,7 @@
             width: 20px;
             border-radius: 50%;
             background: #ffffff;
-            border: 3px solid #10b981;
+            border: 3px solid #10b981; /* Teal/Green Accent */
             cursor: pointer;
             -webkit-appearance: none;
             margin-top: -7px;
@@ -64,10 +76,11 @@
         <div class="max-w-[1400px] mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
             <!-- Left: Logo & Title -->
             <div class="flex items-center gap-3">
-                <img src="Logo.png" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
+                <!-- อย่าลืมใช้ Logo.jpg ตามที่คุณอัปโหลดมาตอนแรก -->
+                <img src="Logo.jpg" alt="Logo" class="h-10 w-10 object-contain rounded-md bg-white">
                 <span class="font-bold text-lg tracking-wide">SAF Hydroprocessing RSM Predictor</span>
             </div>
-            <!-- Right: Links (Removed as requested) -->
+            <!-- Right: Links (Removed) -->
         </div>
     </nav>
 
@@ -250,7 +263,6 @@
                 <!-- BOTTOM ROW: Model Notes -->
                 <div class="bg-emerald-50/50 rounded-[1rem] shadow-sm border border-emerald-200 flex flex-col sm:flex-row overflow-hidden mt-auto">
                     <div class="bg-emerald-100/50 flex flex-row sm:flex-col items-center justify-center p-3 sm:w-40 border-b sm:border-b-0 sm:border-r border-emerald-200 gap-2">
-                        <!-- เปลี่ยนเป็นไอคอน Solid แบบใหม่ที่แสดงผลได้แน่นอน -->
                         <i class="fa-solid fa-file-lines text-2xl text-emerald-700"></i>
                         <span class="font-bold text-emerald-800 text-sm">Model Notes</span>
                     </div>
